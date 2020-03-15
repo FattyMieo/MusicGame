@@ -275,7 +275,7 @@ RectTransform:
   - {fileID: 1135627272}
   - {fileID: 804027012}
   m_Father: {fileID: 1384355315}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
@@ -342,124 +342,6 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 150159270}
-  m_CullTransparentMesh: 0
---- !u!1 &165158806
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 165158807}
-  - component: {fileID: 165158810}
-  - component: {fileID: 165158809}
-  - component: {fileID: 165158808}
-  m_Layer: 5
-  m_Name: StartAnswerButton
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &165158807
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 165158806}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 1617899056}
-  m_Father: {fileID: 1384355315}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 160, y: 30}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &165158808
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 165158806}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Navigation:
-    m_Mode: 3
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 0}
-    m_PressedSprite: {fileID: 0}
-    m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 165158809}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &165158809
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 165158806}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &165158810
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 165158806}
   m_CullTransparentMesh: 0
 --- !u!1 &764134212
 GameObject:
@@ -1059,10 +941,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1337076179}
-  - component: {fileID: 1337076178}
   - component: {fileID: 1337076180}
+  - component: {fileID: 1337076178}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: SoundManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1077,18 +959,40 @@ MonoBehaviour:
   m_GameObject: {fileID: 1337076177}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: acd286e0b69af1b4ca6e151b490bd168, type: 3}
+  m_Script: {fileID: 11500000, guid: ebf33fccc19df284e92fc37d21c02647, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iterator: 0
-  clipTimer: 0
-  currentClipLength: 0
-  audioClipsList:
-  - {fileID: 8300000, guid: dc02f6a04b421d74fa434619730b9aeb, type: 3}
-  - {fileID: 8300000, guid: e4c02d2910fa20548967c4dc4a65300e, type: 3}
-  - {fileID: 8300000, guid: 5f52eadad10093b419f5044bd1c0313f, type: 3}
-  - {fileID: 8300000, guid: b846da12f336dc1488788c1c0e1522e6, type: 3}
-  - {fileID: 8300000, guid: e063010dfd9144e40bd33573be324443, type: 3}
+  AudioSourceComp: {fileID: 0}
+  PlayAudioList: 0
+  GameFlow: {fileID: 0}
+  AudioList: 
+  MusicNotes:
+  - Key: 0
+    Value: {fileID: 8300000, guid: 7e6f89df5304fb24b8fc2a05fa6649a5, type: 3}
+  - Key: 1
+    Value: {fileID: 8300000, guid: de38a918b1b43d74f9165e706bb25221, type: 3}
+  - Key: 2
+    Value: {fileID: 8300000, guid: 9cfeeece4427b804da0be32fadea991c, type: 3}
+  - Key: 3
+    Value: {fileID: 8300000, guid: 17f6f24287a268f419486cd16bd302ad, type: 3}
+  - Key: 4
+    Value: {fileID: 8300000, guid: dc02f6a04b421d74fa434619730b9aeb, type: 3}
+  - Key: 5
+    Value: {fileID: 8300000, guid: e4c02d2910fa20548967c4dc4a65300e, type: 3}
+  - Key: 6
+    Value: {fileID: 8300000, guid: 5f52eadad10093b419f5044bd1c0313f, type: 3}
+  - Key: 7
+    Value: {fileID: 8300000, guid: d6f711775c498a94f91a247032d31724, type: 3}
+  - Key: 8
+    Value: {fileID: 8300000, guid: b2b014904481b4d47aaa0c486f9e46fc, type: 3}
+  - Key: 9
+    Value: {fileID: 8300000, guid: b846da12f336dc1488788c1c0e1522e6, type: 3}
+  - Key: 10
+    Value: {fileID: 8300000, guid: 9efccbf4f05a3564ca3586be43eb9fad, type: 3}
+  - Key: 11
+    Value: {fileID: 8300000, guid: e063010dfd9144e40bd33573be324443, type: 3}
+  - Key: 11
+    Value: {fileID: 8300000, guid: e063010dfd9144e40bd33573be324443, type: 3}
 --- !u!4 &1337076179
 Transform:
   m_ObjectHideFlags: 0
@@ -1289,7 +1193,6 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
-  - {fileID: 165158807}
   - {fileID: 1562507197}
   - {fileID: 150159271}
   m_Father: {fileID: 0}
@@ -1490,11 +1393,11 @@ RectTransform:
   m_Children:
   - {fileID: 764134213}
   m_Father: {fileID: 1384355315}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -40}
+  m_AnchoredPosition: {x: 0, y: 274}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1562507198
@@ -1760,85 +1663,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1595201713}
   m_CullTransparentMesh: 0
---- !u!1 &1617899055
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1617899056}
-  - component: {fileID: 1617899058}
-  - component: {fileID: 1617899057}
-  m_Layer: 5
-  m_Name: Text
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1617899056
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1617899055}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 165158807}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1617899057
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1617899055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
-    m_Alignment: 4
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: 'Start Answer
-
-'
---- !u!222 &1617899058
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1617899055}
-  m_CullTransparentMesh: 0
 --- !u!1 &1776071840
 GameObject:
   m_ObjectHideFlags: 0
@@ -1868,21 +1692,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ab8d424f15701c4da05139e5a04189f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BeginAnswerButton: {fileID: 165158808}
+  BeginAnswerButton: {fileID: 0}
   PlayMusicButton: {fileID: 1562507198}
   MusicNoteButtons:
   - Key: 0
     Value: {fileID: 1595201715}
+    limit: 0
   - Key: 1
     Value: {fileID: 1018698218}
+    limit: 0
   - Key: 2
     Value: {fileID: 33837639}
+    limit: 0
   - Key: 3
     Value: {fileID: 1135627273}
+    limit: 0
   - Key: 4
     Value: {fileID: 804027013}
-  Solutions: 0000000001000000020000000300000004000000
-  IsAnswering: 0
+    limit: 0
+  Solution: 0000000001000000020000000300000004000000
+  RandomizeKeyArray: 
   Answers: 
 --- !u!4 &1776071842
 Transform:
