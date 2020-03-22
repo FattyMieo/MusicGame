@@ -100,7 +100,8 @@ public class MusicPlayerComponent : MonoBehaviour
         new MusicNotePair(9),
         new MusicNotePair(10),
         new MusicNotePair(11),
-        new MusicNotePair(12)
+        new MusicNotePair(12),
+        new MusicNotePair(13)
     };
 
     void Awake()
