@@ -7,53 +7,89 @@ using ProjectMusic;
 [System.Serializable]
 public struct MusicButton
 {
+    public int Index;
     public int Key;
     public Button Value;
-    public int limit;
+    public int PressedLimit;
 }
 
 public class GameFlowScript : MonoBehaviour
 {
-    // Button Setups
-    public Button BeginAnswerButton;
+    //GameplaySetup
+    public GameObject GameplayPanel;
+    public Button PlayAllCardButton;
     public Button PlayMusicButton;
-    public MusicButton[] MusicNoteButtons;
+    public Color[] ButtonIndicator;
+    public float DistanceFromCenter;
+    public int ButtonPressedLimit;
     
+
+    //TuneCard Setups
+    private int TotalTuneCards;
+    public GameObject TuneCardPrefab;
+    public List<TuneCardScript> TuneCards;
 
     // Solution Setups
     public int[] Solution;
-    public int[] RandomizeKeyArray;
+    public int[] RandomizedKeyArray;
 
     // Answers
     public List<int> Answers;
 
-    private void Start()
+    void Start()
     {
         MusicPlayerComponent.Instance.SetAudioList(Solution);
+        TotalTuneCards = Solution.Length;
 
         // Setup delegates
-        PlayMusicButton.onClick.AddListener(PlayMusic);
+        PlayMusicButton.onClick.AddListener(PlayMusic(false));
+        PlayAllCardButton.onClick.AddListener(PlayMusic(true));
+
         RandomArrayElement();
+        SpawnTuneCards();
 
-        for (int i = 0; i < MusicNoteButtons.Length; ++i)
-        {
-            MusicButton CurrentButton = MusicNoteButtons[i];
-            CurrentButton.Key = RandomizeKeyArray[i];
+        PlayMusic();
+    }
 
-            CurrentButton.Value.onClick.AddListener(delegate { OnMusicNoteClicked(CurrentButton.Key); });
+    void SpawnTuneCards()
+    {
+         float OffsetAngle = 360.0f/(float)TotalTuneCards;
+
+        //Convert the angle from degree to radian
+        OffsetAngle = (OffsetAngle * Mathf.PI) / 180.0f;
+
+        float Angle = 0;
+
+         for(int i = 0;i< TotalTuneCards; ++i)
+         {           
+            GameObject Card = Instantiate(TuneCardPrefab,transform.position,Quaternion.identity);
+            Card.transform.SetParent(GameplayPanel.transform, false);
+
+            //Formula to get the position of a point along the circle
+            //! y = r * sin(delta), x = r * cos(delta)
+            RectTransform CardRT = Card.GetComponent<RectTransform>();
+            float x = DistanceFromCenter * Mathf.Sin(Angle);
+            float y = DistanceFromCenter * Mathf.Cos(Angle);
+            CardRT.anchoredPosition = new Vector2(x, y);
+            Angle += OffsetAngle;
+
+            //Setting up the script
+            TuneCardScript CardScript = Card.GetComponent<TuneCardScript>();
+            CardScript.Key = RandomizedKeyArray[i];
+            CardScript.GetButton().onClick.AddListener(delegate { OnMusicNoteClicked(CardScript.Key); });
+            TuneCards.Add(CardScript);
         }
-        
     }
 
     void RandomArrayElement()
     {
-        RandomizeKeyArray = (int[])Solution.Clone();
-        for (int index = 0; index < RandomizeKeyArray.Length; index++)
+        RandomizedKeyArray = (int[])Solution.Clone();
+        for (int i = 0; i < RandomizedKeyArray.Length; i++)
         {
-            int temp = RandomizeKeyArray[index];
-            int randomIndex = Random.Range(0, RandomizeKeyArray.Length-1);
-            RandomizeKeyArray[index] = RandomizeKeyArray[randomIndex];
-            RandomizeKeyArray[randomIndex] = temp;
+            int temp = RandomizedKeyArray[i];
+            int randomIndex = Random.Range(0, RandomizedKeyArray.Length-1);
+            RandomizedKeyArray[i] = RandomizedKeyArray[randomIndex];
+            RandomizedKeyArray[randomIndex] = temp;
         }
     }
 
@@ -62,7 +98,7 @@ public class GameFlowScript : MonoBehaviour
         if (!MusicPlayerComponent.Instance.PlayAudioList)
         {
             MusicPlayerComponent.Instance.PlayMusicNote((NoteType)Key);
-            Answers.Add(Key);
+            /*Answers.Add(Key);
 
             if (CheckAnswer())
             {
@@ -71,7 +107,7 @@ public class GameFlowScript : MonoBehaviour
             else
             {
                 Debug.Log("Incorrect Answer!");
-            }
+            }*/
         }
     }
 
@@ -85,6 +121,10 @@ public class GameFlowScript : MonoBehaviour
             if (AnswerInt != SolutionInt)
             {
                 Answers.Clear();
+               /* for (int j = 0; j < MusicNoteButtons.Length; ++j)
+                {
+                    MusicNoteButtons[j].Value.colors = ColorBlock.defaultColorBlock;
+                }*/
                 break;
             }
         }
@@ -98,8 +138,8 @@ public class GameFlowScript : MonoBehaviour
         }
     }
 
-    void PlayMusic()
+    void PlayMusic(bool useRandomizedAudio)
     {
-        MusicPlayerComponent.Instance.InitiatePlayAudioList();
+        MusicPlayerComponent.Instance.InitiatePlayAudioList(useRandomizedAudio);
     }
 }

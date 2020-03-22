@@ -31,60 +31,15 @@ public class MusicPlayerComponent : MonoBehaviour
 
     public static MusicPlayerComponent Instance { get { return m_Instance; } }
 
-
-    /*private static bool m_ShuttingDown = false;
-    private static object m_Lock = new object();
-    private static MusicPlayerComponent m_Instance;
-
-    public static MusicPlayerComponent Instance
-    {
-        get
-        {
-            if (m_ShuttingDown)
-            {
-                return null;
-            }
-
-            lock (m_Lock)
-            {
-                if (m_Instance = null)
-                {
-
-                    m_Instance = Object.FindObjectOfType<MusicPlayerComponent>();
-
-                    if (m_Instance == null)
-                    {
-                        var singletonObject = new GameObject();
-                        m_Instance = singletonObject.AddComponent<MusicPlayerComponent>();
-                        singletonObject.name = "SoundManager (Singleton)";
-
-                        DontDestroyOnLoad(singletonObject);
-                    }
-                }
-                return m_Instance;
-            }
-        }
-        
-    }
-
-    private void OnApplicationQuit()
-    {
-        m_ShuttingDown = true;
-    }
-
-    private void OnDestory()
-    {
-        m_ShuttingDown = true;
-    }*/
-    //----------------------------------------
     public AudioSource AudioSourceComp;
     public bool PlayAudioList;
     int Iterator;
     float ClipTimer;
     float CurrentClipLength;
-
-    public GameFlowScript GameFlow;
+    
     public int[] AudioList;
+    public int[] RandomizedAudioList;
+    private int[] CurrentAudioList;
 
     public MusicNotePair[] MusicNotes = new MusicNotePair[(int)NoteType.Count]
     {
@@ -100,7 +55,8 @@ public class MusicPlayerComponent : MonoBehaviour
         new MusicNotePair(9),
         new MusicNotePair(10),
         new MusicNotePair(11),
-        new MusicNotePair(12)
+        new MusicNotePair(12),
+        new MusicNotePair(13)
     };
 
     void Awake()
@@ -120,6 +76,7 @@ public class MusicPlayerComponent : MonoBehaviour
 
     void Start()
     {
+        CurrentAudioList = AudioList;
         Iterator = 0;
         ClipTimer = 0;
         CurrentClipLength = 0;
@@ -144,22 +101,31 @@ public class MusicPlayerComponent : MonoBehaviour
         AudioSourceComp.PlayOneShot(MusicNotes[(int)Note].Value);
     }
 
-    public void InitiatePlayAudioList()
+    public void InitiatePlayAudioList(bool IsRandomized)
     {
         if (!PlayAudioList)
         {
             PlayAudioList = true;
             Iterator = 0;
             ClipTimer = 0;
-            AudioSourceComp.clip = MusicNotes[AudioList[Iterator]].Value;
-            CurrentClipLength = MusicNotes[AudioList[Iterator]].Value.length;
+            if (!IsRandomized)
+            {
+                CurrentAudioList = AudioList;
+            }
+            else
+            {
+                CurrentAudioList = RandomizedAudioList;
+            }
+            AudioSourceComp.clip = MusicNotes[CurrentAudioList[Iterator]].Value;
+            CurrentClipLength = MusicNotes[CurrentAudioList[Iterator]].Value.length;
+
             AudioSourceComp.Play();
         }
     }
 
     void LoopAudioList()
     {
-        if (Iterator < AudioList.Length - 1)
+        if (Iterator < CurrentAudioList.Length - 1)
         {
             ClipTimer += Time.deltaTime;
             if (ClipTimer >= CurrentClipLength)
@@ -169,8 +135,8 @@ public class MusicPlayerComponent : MonoBehaviour
 
                 Iterator++;
                 
-                AudioSourceComp.clip = MusicNotes[AudioList[Iterator]].Value;
-                CurrentClipLength = MusicNotes[AudioList[Iterator]].Value.length;
+                AudioSourceComp.clip = MusicNotes[CurrentAudioList[Iterator]].Value;
+                CurrentClipLength = MusicNotes[CurrentAudioList[Iterator]].Value.length;
                 AudioSourceComp.Play();
             }
         }
