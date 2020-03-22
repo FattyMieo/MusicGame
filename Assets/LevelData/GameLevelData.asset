@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 50d7f77c2a8016a47a6e067384b16220, type: 3}
   m_Name: GameLevelData
-  m_EditorClassIdentifier: Assembly-CSharp::GameLevelData
+  m_EditorClassIdentifier: 
   LevelDatas:
   - {fileID: 11400000, guid: a6cb86b1dad77f44893d0c9843553d1f, type: 2}
   - {fileID: 11400000, guid: feb9be5050501a742974beb02beb4cf9, type: 2}

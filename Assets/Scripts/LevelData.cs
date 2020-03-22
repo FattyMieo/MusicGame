@@ -11,9 +11,3 @@ public class LevelData : ScriptableObject
     public NoteType[] Sequence;
     public NoteType[] Decoys;
 }
-
-[CreateAssetMenu(fileName = "GameLevelData", menuName = "Scriptable Objects/Create Game Level Data Scriptable Object")]
-public class GameLevelData : ScriptableObject
-{
-    public LevelData[] LevelDatas;
-}

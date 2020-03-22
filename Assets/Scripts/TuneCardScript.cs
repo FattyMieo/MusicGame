@@ -38,17 +38,17 @@ public class TuneCardScript : MonoBehaviour
 
     public void SetButtonColor(Color ButtonColor)
     {
-        ColorBlock Temp;
+        ColorBlock Temp = MButton.colors;
         Temp.normalColor = ButtonColor;
         MButton.colors = Temp;
     }
 
     public void SetGlow(bool ToGlow)
     {
-        Color Temp;
+        Color Temp = GlowImage.color;
         if (ToGlow)
         {
-            Temp.a = 0;
+            Temp.a = 0.0f;
         }
         else
         {

@@ -19,6 +19,7 @@ public class GameFlowScript : MonoBehaviour
     public GameObject GameplayPanel;
     public Button PlayAllCardButton;
     public Button PlayMusicButton;
+    public Text LevelText;
     public Color[] ButtonIndicator;
     public float DistanceFromCenter;
     public int ButtonPressedLimit;
@@ -30,25 +31,62 @@ public class GameFlowScript : MonoBehaviour
     public List<TuneCardScript> TuneCards;
 
     // Solution Setups
-    public int[] Solution;
+    public List<int> Solution;
     public int[] RandomizedKeyArray;
 
     // Answers
     public List<int> Answers;
 
+    // Level Data
+    public GameLevelData AllLevelData;
+    private LevelData CurrentLevelData;
+
+    public int LevelNumber;
+
     void Start()
     {
-        MusicPlayerComponent.Instance.SetAudioList(Solution);
-        TotalTuneCards = Solution.Length;
+        LevelText.text = "Level " + (LevelNumber < 10 ? "0" + LevelNumber.ToString() : LevelNumber.ToString());
+        TestInitializeLevelData();
+
+        MusicPlayerComponent.Instance.SetAudioList(Solution.ToArray());
+        TotalTuneCards = Solution.Count;
 
         // Setup delegates
-        PlayMusicButton.onClick.AddListener(PlayMusic(false));
-        PlayAllCardButton.onClick.AddListener(PlayMusic(true));
+        PlayMusicButton.onClick.AddListener(PlayFullMusic);
+        PlayAllCardButton.onClick.AddListener(PlayRandomizedMusic);
 
         RandomArrayElement();
         SpawnTuneCards();
 
-        PlayMusic();
+        PlayMusic(false);
+    }
+
+    // Move to somewhere else
+    LevelData RetrieveLevelData(int Level)
+    {
+        return AllLevelData.LevelDatas[Level];
+    }
+
+    void TestInitializeLevelData()
+    {
+        if (LevelNumber - 1 < 0)
+            return;
+
+        CurrentLevelData = RetrieveLevelData(LevelNumber - 1);
+
+        MusicPlayerComponent.Instance.MusicNotes = CurrentLevelData.Pairs;
+
+        Solution.Clear();
+        for (int i = 0; i < CurrentLevelData.Sequence.Length; ++i)
+        {
+            for (int j = 0; j < CurrentLevelData.Pairs.Length; ++j)
+            {
+                if (CurrentLevelData.Sequence[i] == CurrentLevelData.Pairs[j].Key)
+                {
+                    Solution.Add(j);
+                }
+            }
+        }
     }
 
     void SpawnTuneCards()
@@ -83,7 +121,7 @@ public class GameFlowScript : MonoBehaviour
 
     void RandomArrayElement()
     {
-        RandomizedKeyArray = (int[])Solution.Clone();
+        RandomizedKeyArray = Solution.ToArray();
         for (int i = 0; i < RandomizedKeyArray.Length; i++)
         {
             int temp = RandomizedKeyArray[i];
@@ -128,7 +166,7 @@ public class GameFlowScript : MonoBehaviour
                 break;
             }
         }
-        if (Solution.Length == Answers.Count)
+        if (Solution.Count == Answers.Count)
         {
             return true;
         }
@@ -141,5 +179,15 @@ public class GameFlowScript : MonoBehaviour
     void PlayMusic(bool useRandomizedAudio)
     {
         MusicPlayerComponent.Instance.InitiatePlayAudioList(useRandomizedAudio);
+    }
+
+    void PlayFullMusic()
+    {
+        MusicPlayerComponent.Instance.InitiatePlayAudioList(false);
+    }
+
+    void PlayRandomizedMusic()
+    {
+        MusicPlayerComponent.Instance.InitiatePlayAudioList(true);
     }
 }
