@@ -13,14 +13,24 @@ public struct MusicButton
     public int PressedLimit;
 }
 
+
 public class GameFlowScript : MonoBehaviour
 {
     //GameplaySetup
     public GameObject GameplayPanel;
     public Button PlayAllCardButton;
     public Button PlayMusicButton;
+    public GameObject GameMenuPanel;
+    public Button MainMenuButton;
+    public Button ReloadButton;
+
+    public Text SessionStateText;
+    public Text PlayMusicButtonText;
     public Text LevelText;
-    public Color[] ButtonIndicator;
+    public Color[] ChanceIndicator;
+    private int ChancesLeft;
+    public Color CorrectIndicator; 
+    
     public float DistanceFromCenter;
     public int ButtonPressedLimit;
     
@@ -29,66 +39,38 @@ public class GameFlowScript : MonoBehaviour
     private int TotalTuneCards;
     public GameObject TuneCardPrefab;
     public List<TuneCardScript> TuneCards;
-
-    // Solution Setups
-    public List<int> Solution;
-    public int[] RandomizedKeyArray;
-
+    
     // Answers
     public List<int> Answers;
 
     // Level Data
-    public GameLevelData AllLevelData;
-    private LevelData CurrentLevelData;
-
-    public int LevelNumber;
+    public GameLevelInfo CurrentLevelInfo;
 
     void Start()
     {
-        LevelText.text = "Level " + (LevelNumber < 10 ? "0" + LevelNumber.ToString() : LevelNumber.ToString());
-        TestInitializeLevelData();
+        CurrentLevelInfo = MusicPlayerComponent.Instance.GetGameLevelInfo();
+        LevelText.text = "Level " + (CurrentLevelInfo.LevelNumber < 10 ? "0" + CurrentLevelInfo.LevelNumber.ToString() : CurrentLevelInfo.LevelNumber.ToString());
 
-        MusicPlayerComponent.Instance.SetAudioList(Solution.ToArray());
-        TotalTuneCards = Solution.Count;
+
+        ChancesLeft = ChanceIndicator.Length-1;
+        PlayAllCardButton.GetComponent<Image>().color = ChanceIndicator[ChancesLeft];
+        
+        TotalTuneCards = CurrentLevelInfo.DisorganizedSequence.Count;
+        SpawnTuneCards();
+        MusicPlayerComponent.Instance.SetTuneCardList(TuneCards);
 
         // Setup delegates
         PlayMusicButton.onClick.AddListener(PlayFullMusic);
-        PlayAllCardButton.onClick.AddListener(PlayRandomizedMusic);
+        PlayAllCardButton.onClick.AddListener(PlayAllTuneCards);
+        MainMenuButton.onClick.AddListener(delegate { MusicPlayerComponent.Instance.LoadLevel(0); });
+        ReloadButton.onClick.AddListener(delegate { MusicPlayerComponent.Instance.LoadLevel(1); });
 
-        RandomArrayElement();
-        SpawnTuneCards();
-
-        PlayMusic(false);
+        ToggleInteractableButtons(true);
+        GameMenuPanel.SetActive(false);
+        //!Bug currently skip the first audio source
+        PlayFullMusic();
     }
-
-    // Move to somewhere else
-    LevelData RetrieveLevelData(int Level)
-    {
-        return AllLevelData.LevelDatas[Level];
-    }
-
-    void TestInitializeLevelData()
-    {
-        if (LevelNumber - 1 < 0)
-            return;
-
-        CurrentLevelData = RetrieveLevelData(LevelNumber - 1);
-
-        MusicPlayerComponent.Instance.MusicNotes = CurrentLevelData.Pairs;
-
-        Solution.Clear();
-        for (int i = 0; i < CurrentLevelData.Sequence.Length; ++i)
-        {
-            for (int j = 0; j < CurrentLevelData.Pairs.Length; ++j)
-            {
-                if (CurrentLevelData.Sequence[i] == CurrentLevelData.Pairs[j].Key)
-                {
-                    Solution.Add(j);
-                }
-            }
-        }
-    }
-
+    
     void SpawnTuneCards()
     {
          float OffsetAngle = 360.0f/(float)TotalTuneCards;
@@ -113,81 +95,111 @@ public class GameFlowScript : MonoBehaviour
 
             //Setting up the script
             TuneCardScript CardScript = Card.GetComponent<TuneCardScript>();
-            CardScript.Key = RandomizedKeyArray[i];
-            CardScript.GetButton().onClick.AddListener(delegate { OnMusicNoteClicked(CardScript.Key); });
+            CardScript.Key = CurrentLevelInfo.DisorganizedSequence[i];
+            CardScript.CardIndex = i;
+            CardScript.SetButtonColor(ChanceIndicator[ChancesLeft]);
+            CardScript.GetButton().onClick.AddListener(delegate { OnMusicNoteClicked(CardScript.Key,CardScript.CardIndex); });
             TuneCards.Add(CardScript);
         }
     }
+    
 
-    void RandomArrayElement()
+    void OnMusicNoteClicked(int Key,int Index)
     {
-        RandomizedKeyArray = Solution.ToArray();
-        for (int i = 0; i < RandomizedKeyArray.Length; i++)
+        if (!MusicPlayerComponent.Instance.GetAudioSource().isPlaying)
         {
-            int temp = RandomizedKeyArray[i];
-            int randomIndex = Random.Range(0, RandomizedKeyArray.Length-1);
-            RandomizedKeyArray[i] = RandomizedKeyArray[randomIndex];
-            RandomizedKeyArray[randomIndex] = temp;
-        }
-    }
-
-    void OnMusicNoteClicked(int Key)
-    {
-        if (!MusicPlayerComponent.Instance.PlayAudioList)
-        {
+            MusicPlayerComponent.Instance.CurrentTuneCardIndex = Index;
             MusicPlayerComponent.Instance.PlayMusicNote((NoteType)Key);
-            /*Answers.Add(Key);
+            Answers.Add(Key);
 
-            if (CheckAnswer())
+            if (CheckCurrentSequence())
             {
-                Debug.Log("Correct! Congratulations!");
+                TuneCards[Index].BCorrect = true;
+                for (int i = 0; i < TuneCards.Count; ++i)
+                {
+                    if (TuneCards[i].BCorrect)
+                        TuneCards[i].SetButtonColor(ChanceIndicator[ChancesLeft]);
+                    else
+                        TuneCards[i].SetButtonColor(CorrectIndicator);
+                }
+                if (Answers.Count == CurrentLevelInfo.Sequence.Count)
+                {
+                    EndSession(true);
+                }
             }
             else
             {
-                Debug.Log("Incorrect Answer!");
-            }*/
+                Answers.Clear();
+                if (ChancesLeft > 0)
+                {
+                    ChancesLeft -= 1;
+                }
+
+                if(ChancesLeft <= 0)
+                {
+                    EndSession(false);
+                }
+
+                PlayAllCardButton.GetComponent<Image>().color = ChanceIndicator[ChancesLeft];
+                for (int i = 0; i < TuneCards.Count; ++i)
+                {
+                    TuneCards[i].BCorrect = false;
+                    TuneCards[i].SetButtonColor(ChanceIndicator[ChancesLeft]);
+                }
+                
+            
+            }
+            
         }
     }
 
-    public bool CheckAnswer()
+    public bool CheckCurrentSequence()
     {
         for (int i = 0; i < Answers.Count; ++i)
         {
-            int AnswerInt = Answers[i];
-            int SolutionInt = Solution[i];
-
-            if (AnswerInt != SolutionInt)
+            if (Answers[i] != CurrentLevelInfo.Sequence[i])
             {
-                Answers.Clear();
-               /* for (int j = 0; j < MusicNoteButtons.Length; ++j)
-                {
-                    MusicNoteButtons[j].Value.colors = ColorBlock.defaultColorBlock;
-                }*/
-                break;
+                return false;
             }
         }
-        if (Solution.Count == Answers.Count)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return true;
     }
 
-    void PlayMusic(bool useRandomizedAudio)
+    void ToggleInteractableButtons(bool BInteractable)
     {
-        MusicPlayerComponent.Instance.InitiatePlayAudioList(useRandomizedAudio);
+        PlayAllCardButton.interactable = BInteractable;
+        PlayMusicButton.interactable = BInteractable;
+
+        for (int i = 0; i < TuneCards.Count; ++i)
+        {
+            TuneCards[i].GetButton().interactable = BInteractable;
+        }
     }
 
+    void EndSession(bool BWin)
+    {
+        ToggleInteractableButtons(false);
+        if (BWin)
+            SessionStateText.text = "Congratulation";
+        else
+            SessionStateText.text = "Sorry, Try Again";
+
+        GameMenuPanel.SetActive(true);
+    }
+    
     void PlayFullMusic()
     {
-        MusicPlayerComponent.Instance.InitiatePlayAudioList(false);
+        if(!MusicPlayerComponent.Instance.GetAudioSource().isPlaying)
+            MusicPlayerComponent.Instance.InitiatePlayAudioList(true);
     }
 
-    void PlayRandomizedMusic()
+    void PlayAllTuneCards()
     {
-        MusicPlayerComponent.Instance.InitiatePlayAudioList(true);
+        if (!MusicPlayerComponent.Instance.GetAudioSource().isPlaying && ButtonPressedLimit > 0)
+        {
+            ButtonPressedLimit -= 1;
+            PlayMusicButtonText.text = ButtonPressedLimit.ToString();
+            MusicPlayerComponent.Instance.InitiatePlayAudioList(false);
+        }
     }
 }

@@ -8,21 +8,22 @@ public class TuneCardScript : MonoBehaviour
 {
     private Button MButton;
     private Image GlowImage;
-    public ColorBlock buttonColorBlock;
+    //public ColorBlock buttonColorBlock;
     public int Key;
     public int CardIndex;
-    public bool BCanInteract;
+    public bool BCorrect;
     
     void Awake()
     {
         MButton = this.GetComponentInChildren<Button>();
         GlowImage = this.GetComponent<Image>();
+        BCorrect = false;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        SetGlow(false);
     }
 
     // Update is called once per frame
@@ -38,15 +39,16 @@ public class TuneCardScript : MonoBehaviour
 
     public void SetButtonColor(Color ButtonColor)
     {
-        ColorBlock Temp = MButton.colors;
-        Temp.normalColor = ButtonColor;
-        MButton.colors = Temp;
+        MButton.GetComponent<Image>().color = ButtonColor;
+       //ColorBlock Temp = MButton.colors;
+       //Temp.normalColor = ButtonColor;
+       // MButton.colors = Temp;
     }
 
     public void SetGlow(bool ToGlow)
     {
         Color Temp = GlowImage.color;
-        if (ToGlow)
+        if (!ToGlow)
         {
             Temp.a = 0.0f;
         }

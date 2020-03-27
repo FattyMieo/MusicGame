@@ -1,7 +1,23 @@
-﻿using System.Collections;
+﻿ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using ProjectMusic;
+using UnityEngine.SceneManagement;
+
+[System.Serializable]
+public struct GameLevelInfo
+{
+    public int LevelNumber;
+    public List<int> Sequence;
+    public List<int> DisorganizedSequence;
+
+    public void ResetInfo()
+    {
+        LevelNumber = 0;
+        Sequence.Clear();
+        DisorganizedSequence.Clear();
+    }
+}
 
 [System.Serializable]
 public struct MusicNotePair
@@ -31,17 +47,26 @@ public class MusicPlayerComponent : MonoBehaviour
 
     public static MusicPlayerComponent Instance { get { return m_Instance; } }
 
-    public AudioSource AudioSourceComp;
-    public bool PlayAudioList;
-    int Iterator;
-    float ClipTimer;
-    float CurrentClipLength;
-    
-    public int[] AudioList;
-    public int[] RandomizedAudioList;
-    private int[] CurrentAudioList;
+    private AudioSource AudioSourceComp;
+    private bool PlayAudioList;
+    private bool PlaySequence;
+    private int Iterator;
+    private float ClipTimer;
+    private float CurrentClipLength;
 
-    public MusicNotePair[] MusicNotes = new MusicNotePair[(int)NoteType.Count]
+    //Level Data
+    public GameLevelData AllLevelData;
+    private LevelData CurrentLevelData;
+
+    //List of Audio and Notes
+    private MusicNotePair[] MusicNotes;
+    public GameLevelInfo LevelInfo;
+    private List<int> CurrentAudioList;
+
+    public int CurrentTuneCardIndex;
+    private List<TuneCardScript> M_TuneCards;
+    
+   /* public MusicNotePair[] MusicNotes = new MusicNotePair[(int)NoteType.Count]
     {
         new MusicNotePair(0),
         new MusicNotePair(1),
@@ -57,7 +82,7 @@ public class MusicPlayerComponent : MonoBehaviour
         new MusicNotePair(11),
         new MusicNotePair(12),
         new MusicNotePair(13)
-    };
+    };*/
 
     void Awake()
     {
@@ -72,11 +97,13 @@ public class MusicPlayerComponent : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
 
         AudioSourceComp = GetComponent<AudioSource>();
+        AudioSourceComp.Stop();
     }
 
     void Start()
     {
-        CurrentAudioList = AudioList;
+        PlaySequence = true;
+        CurrentTuneCardIndex = -1;
         Iterator = 0;
         ClipTimer = 0;
         CurrentClipLength = 0;
@@ -88,34 +115,140 @@ public class MusicPlayerComponent : MonoBehaviour
         {
             LoopAudioList();
         }
+        else if (AudioSourceComp.isPlaying)
+        {
+            
+            if (CurrentTuneCardIndex >= 0)
+            {
+                M_TuneCards[CurrentTuneCardIndex].SetGlow(true);
+            }
+        }
+        else
+        {
+            if (CurrentTuneCardIndex >= 0)
+            {
+                M_TuneCards[CurrentTuneCardIndex].SetGlow(false);
+                CurrentTuneCardIndex = -1;
+            }
+        }
     }
 
-    public void SetAudioList(int[] Sequence)
+    public AudioSource GetAudioSource()
     {
-        AudioList = Sequence;
+        return AudioSourceComp;
+    }
+
+    LevelData RetrieveLevelData(int Level)
+    {
+        Debug.Log("Level is " + Level);
+        return AllLevelData.LevelDatas[Level];
+    }
+
+    void InitializeLevelInfo(int Level)
+    {
+        if (Level - 1 < -1)
+            return;
+
+        CurrentLevelData = RetrieveLevelData(Level);
+        LevelInfo.LevelNumber = Level;
+
+        
+        MusicNotes = CurrentLevelData.Pairs;
+        
+        for (int i = 0; i < CurrentLevelData.Sequence.Length; ++i)
+        {
+            for (int j = 0; j < CurrentLevelData.Pairs.Length; ++j)
+            {
+                if (CurrentLevelData.Sequence[i] == CurrentLevelData.Pairs[j].Key)
+                {
+                    LevelInfo.Sequence.Add(j);
+                }
+            }
+        }
+
+        LevelInfo.DisorganizedSequence = new List<int>(LevelInfo.Sequence);
+
+        //Add Decoy if provided
+        if (CurrentLevelData.Decoys.Length > 0)
+        {
+            for (int i = 0; i < CurrentLevelData.Decoys.Length; ++i)
+            {
+                for (int j = 0; j < CurrentLevelData.Pairs.Length; ++j)
+                {
+                    if (CurrentLevelData.Decoys[i] == CurrentLevelData.Pairs[j].Key)
+                    {
+                        LevelInfo.DisorganizedSequence.Add(j);
+                    }
+                }
+            }
+        }
+
+        //Disrupt order in the array
+        for (int i = 0; i < LevelInfo.DisorganizedSequence.Count; i++)
+        {
+            int temp = LevelInfo.DisorganizedSequence[i];
+            int randomIndex = Random.Range(0, LevelInfo.DisorganizedSequence.Count - 1);
+            LevelInfo.DisorganizedSequence[i] = LevelInfo.DisorganizedSequence[randomIndex];
+            LevelInfo.DisorganizedSequence[randomIndex] = temp;
+        }
+    }
+
+    public void LoadGameLevel(int LevelIndex)
+    {
+        InitializeLevelInfo(LevelIndex-1);
+        SceneManager.LoadScene(1);
+    }
+
+    public void LoadLevel(int BuildIndex)
+    {
+        if (BuildIndex == 0)
+        {
+            LevelInfo.ResetInfo();
+        }
+        SceneManager.LoadScene(BuildIndex);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
+    public GameLevelInfo GetGameLevelInfo()
+    {
+        return LevelInfo;
+    }
+    
+    //Dangerous refactor later on
+    public void SetTuneCardList(List<TuneCardScript> tuncards)
+    {
+        M_TuneCards = tuncards;
     }
 
     public void PlayMusicNote(NoteType Note)
     {
-        //Debug.Log(MusicNotes[(int)Note].Value);
         AudioSourceComp.PlayOneShot(MusicNotes[(int)Note].Value);
     }
 
-    public void InitiatePlayAudioList(bool IsRandomized)
+    public void InitiatePlayAudioList(bool IsSequence)
     {
-        if (!PlayAudioList)
+        PlaySequence = IsSequence;
+        if (!AudioSourceComp.isPlaying)
         {
             PlayAudioList = true;
             Iterator = 0;
             ClipTimer = 0;
-            if (!IsRandomized)
+
+            if (PlaySequence)
             {
-                CurrentAudioList = AudioList;
+                CurrentAudioList = new List<int>(LevelInfo.Sequence);
             }
             else
             {
-                CurrentAudioList = RandomizedAudioList;
+                CurrentAudioList = new List<int>(LevelInfo.DisorganizedSequence);
+                CurrentTuneCardIndex = Iterator;
+                M_TuneCards[CurrentTuneCardIndex].SetGlow(true);
             }
+
             AudioSourceComp.clip = MusicNotes[CurrentAudioList[Iterator]].Value;
             CurrentClipLength = MusicNotes[CurrentAudioList[Iterator]].Value.length;
 
@@ -123,9 +256,11 @@ public class MusicPlayerComponent : MonoBehaviour
         }
     }
 
+
+
     void LoopAudioList()
     {
-        if (Iterator < CurrentAudioList.Length - 1)
+        if (Iterator < CurrentAudioList.Count)
         {
             ClipTimer += Time.deltaTime;
             if (ClipTimer >= CurrentClipLength)
@@ -133,16 +268,33 @@ public class MusicPlayerComponent : MonoBehaviour
                 ClipTimer = 0;
                 AudioSourceComp.Stop();
 
+                if (!PlaySequence)
+                {
+                    M_TuneCards[CurrentTuneCardIndex].SetGlow(false);
+                }
+
                 Iterator++;
-                
-                AudioSourceComp.clip = MusicNotes[CurrentAudioList[Iterator]].Value;
-                CurrentClipLength = MusicNotes[CurrentAudioList[Iterator]].Value.length;
-                AudioSourceComp.Play();
+
+                if (Iterator < CurrentAudioList.Count)
+                {
+                    if (!PlaySequence)
+                    {
+                        CurrentTuneCardIndex = Iterator;
+                        M_TuneCards[CurrentTuneCardIndex].SetGlow(true);
+                    }
+
+                    AudioSourceComp.clip = MusicNotes[CurrentAudioList[Iterator]].Value;
+                    CurrentClipLength = MusicNotes[CurrentAudioList[Iterator]].Value.length;
+
+                    AudioSourceComp.Play();
+                }
+                else
+                {
+                    CurrentTuneCardIndex = -1;
+                    PlaySequence = true;
+                    PlayAudioList = false;
+                }
             }
-        }
-        else
-        {
-            PlayAudioList = false;
         }
     }
  }
