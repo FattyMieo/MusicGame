@@ -2,60 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using ProjectMusic;
 
-public class TuneCardScript : MonoBehaviour
+public class TuneCardScript : MusicGameButton
 {
-    private Button MButton;
-    private Image GlowImage;
-    //public ColorBlock buttonColorBlock;
     public int Key;
     public int CardIndex;
     public bool BCorrect;
-    
-    void Awake()
+
+    public override void Awake()
     {
-        MButton = this.GetComponentInChildren<Button>();
-        GlowImage = this.GetComponent<Image>();
+        base.Awake();
         BCorrect = false;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    /*public CheckCorrectness(Color RightColor,Color WrongColor)
     {
-        SetGlow(false);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public Button GetButton()
-    {
-        return MButton;
-    }
-
-    public void SetButtonColor(Color ButtonColor)
-    {
-        MButton.GetComponent<Image>().color = ButtonColor;
-       //ColorBlock Temp = MButton.colors;
-       //Temp.normalColor = ButtonColor;
-       // MButton.colors = Temp;
-    }
-
-    public void SetGlow(bool ToGlow)
-    {
-        Color Temp = GlowImage.color;
-        if (!ToGlow)
+        if (BCorrect)
         {
-            Temp.a = 0.0f;
+            MButton.interactable = false;
+            SetButtonColor(RightColor);
         }
         else
         {
-            Temp.a = 0.8f;
+            MButton.interactable = true;
+            SetButtonColor(WrongColor);
         }
-        GlowImage.color = Temp;
-    }
+    }*/
 }

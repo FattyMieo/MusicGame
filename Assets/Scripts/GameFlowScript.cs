@@ -19,17 +19,19 @@ public class GameFlowScript : MonoBehaviour
     //GameplaySetup
     public GameObject GameplayPanel;
     public Button PlayAllCardButton;
-    public Button PlayMusicButton;
+    public MusicGameButton PlayMusicButton;
     public GameObject GameMenuPanel;
     public Button MainMenuButton;
     public Button ReloadButton;
 
     public Text SessionStateText;
-    public Text PlayMusicButtonText;
+    public Text PlayTuneCardsText;
     public Text LevelText;
-    public Color[] ChanceIndicator;
+    
+    public Color[] ChanceIndicator;   // color to indicate how many chances left, start with the last index
+    public Color[] CorrectIndicator;  // 0 is the main color, 1 is the supportive color
     private int ChancesLeft;
-    public Color CorrectIndicator; 
+    
     
     public float DistanceFromCenter;
     public int ButtonPressedLimit;
@@ -49,24 +51,26 @@ public class GameFlowScript : MonoBehaviour
     void Start()
     {
         CurrentLevelInfo = MusicPlayerComponent.Instance.GetGameLevelInfo();
-        LevelText.text = "Level " + (CurrentLevelInfo.LevelNumber < 10 ? "0" + CurrentLevelInfo.LevelNumber.ToString() : CurrentLevelInfo.LevelNumber.ToString());
-
-
+        //condition ? first_expression : second_expression;
+        LevelText.text = "Level " + (CurrentLevelInfo.LevelNumber < 10 ? "0" + (CurrentLevelInfo.LevelNumber+1).ToString() : (CurrentLevelInfo.LevelNumber + 1).ToString());
+        
         ChancesLeft = ChanceIndicator.Length-1;
-        PlayAllCardButton.GetComponent<Image>().color = ChanceIndicator[ChancesLeft];
+        PlayAllCardButton.GetComponent<Image>().color = CorrectIndicator[0];
         
         TotalTuneCards = CurrentLevelInfo.DisorganizedSequence.Count;
         SpawnTuneCards();
         MusicPlayerComponent.Instance.SetTuneCardList(TuneCards);
 
         // Setup delegates
-        PlayMusicButton.onClick.AddListener(PlayFullMusic);
+        PlayMusicButton.GetButton().onClick.AddListener(PlayFullMusic);
         PlayAllCardButton.onClick.AddListener(PlayAllTuneCards);
         MainMenuButton.onClick.AddListener(delegate { MusicPlayerComponent.Instance.LoadLevel(0); });
         ReloadButton.onClick.AddListener(delegate { MusicPlayerComponent.Instance.LoadLevel(1); });
 
         ToggleInteractableButtons(true);
         GameMenuPanel.SetActive(false);
+
+        MusicPlayerComponent.Instance.PlaySequenceButton = PlayMusicButton;
         //!Bug currently skip the first audio source
         PlayFullMusic();
     }
@@ -97,7 +101,7 @@ public class GameFlowScript : MonoBehaviour
             TuneCardScript CardScript = Card.GetComponent<TuneCardScript>();
             CardScript.Key = CurrentLevelInfo.DisorganizedSequence[i];
             CardScript.CardIndex = i;
-            CardScript.SetButtonColor(ChanceIndicator[ChancesLeft]);
+            CardScript.SetButtonColor(CorrectIndicator[0]);
             CardScript.GetButton().onClick.AddListener(delegate { OnMusicNoteClicked(CardScript.Key,CardScript.CardIndex); });
             TuneCards.Add(CardScript);
         }
@@ -114,42 +118,53 @@ public class GameFlowScript : MonoBehaviour
 
             if (CheckCurrentSequence())
             {
-                TuneCards[Index].BCorrect = true;
-                for (int i = 0; i < TuneCards.Count; ++i)
-                {
-                    if (TuneCards[i].BCorrect)
-                        TuneCards[i].SetButtonColor(ChanceIndicator[ChancesLeft]);
-                    else
-                        TuneCards[i].SetButtonColor(CorrectIndicator);
-                }
-                if (Answers.Count == CurrentLevelInfo.Sequence.Count)
-                {
-                    EndSession(true);
-                }
+                OnCorrectStreak(Index);
             }
             else
             {
-                Answers.Clear();
-                if (ChancesLeft > 0)
-                {
-                    ChancesLeft -= 1;
-                }
-
-                if(ChancesLeft <= 0)
-                {
-                    EndSession(false);
-                }
-
-                PlayAllCardButton.GetComponent<Image>().color = ChanceIndicator[ChancesLeft];
-                for (int i = 0; i < TuneCards.Count; ++i)
-                {
-                    TuneCards[i].BCorrect = false;
-                    TuneCards[i].SetButtonColor(ChanceIndicator[ChancesLeft]);
-                }
-                
-            
+                OnFailedStreak();
             }
             
+        }
+    }
+
+    void OnCorrectStreak(int TuneCardIndex)
+    {
+        TuneCards[TuneCardIndex].BCorrect = true;
+        for (int i = 0; i < TuneCards.Count; ++i)
+        {
+            if (TuneCards[i].BCorrect)
+            {
+                TuneCards[i].SetButtonColor(CorrectIndicator[0]);
+                TuneCards[i].GetButton().interactable = false;
+            }
+            else
+                TuneCards[i].SetButtonColor(CorrectIndicator[1]);
+        }
+        if (Answers.Count == CurrentLevelInfo.Sequence.Count)
+        {
+            EndSession(true);
+        }
+    }
+
+    void OnFailedStreak()
+    {
+        Answers.Clear();
+        PlayAllCardButton.GetComponent<Image>().color = ChanceIndicator[ChancesLeft];
+        for (int i = 0; i < TuneCards.Count; ++i)
+        {
+            TuneCards[i].BCorrect = false;
+            TuneCards[i].GetButton().interactable = true;
+            TuneCards[i].SetButtonColor(ChanceIndicator[ChancesLeft]);
+        }
+
+        if (ChancesLeft <= 0)
+        {
+            EndSession(false);
+        }
+        else if (ChancesLeft > 0)
+        {
+            ChancesLeft -= 1;
         }
     }
 
@@ -168,7 +183,7 @@ public class GameFlowScript : MonoBehaviour
     void ToggleInteractableButtons(bool BInteractable)
     {
         PlayAllCardButton.interactable = BInteractable;
-        PlayMusicButton.interactable = BInteractable;
+        PlayMusicButton.GetButton().interactable = BInteractable;
 
         for (int i = 0; i < TuneCards.Count; ++i)
         {
@@ -180,9 +195,9 @@ public class GameFlowScript : MonoBehaviour
     {
         ToggleInteractableButtons(false);
         if (BWin)
-            SessionStateText.text = "Congratulation";
+            SessionStateText.text = "Congratulation!";
         else
-            SessionStateText.text = "Sorry, Try Again";
+            SessionStateText.text = "GG, You Lost.";
 
         GameMenuPanel.SetActive(true);
     }
@@ -198,7 +213,7 @@ public class GameFlowScript : MonoBehaviour
         if (!MusicPlayerComponent.Instance.GetAudioSource().isPlaying && ButtonPressedLimit > 0)
         {
             ButtonPressedLimit -= 1;
-            PlayMusicButtonText.text = ButtonPressedLimit.ToString();
+            PlayTuneCardsText.text = ButtonPressedLimit.ToString();
             MusicPlayerComponent.Instance.InitiatePlayAudioList(false);
         }
     }

@@ -65,6 +65,7 @@ public class MusicPlayerComponent : MonoBehaviour
 
     public int CurrentTuneCardIndex;
     private List<TuneCardScript> M_TuneCards;
+    public MusicGameButton PlaySequenceButton;
     
    /* public MusicNotePair[] MusicNotes = new MusicNotePair[(int)NoteType.Count]
     {
@@ -140,7 +141,6 @@ public class MusicPlayerComponent : MonoBehaviour
 
     LevelData RetrieveLevelData(int Level)
     {
-        Debug.Log("Level is " + Level);
         return AllLevelData.LevelDatas[Level];
     }
 
@@ -182,15 +182,18 @@ public class MusicPlayerComponent : MonoBehaviour
                 }
             }
         }
+    }
 
-        //Disrupt order in the array
-        for (int i = 0; i < LevelInfo.DisorganizedSequence.Count; i++)
+    public GameLevelInfo RandomDSequenceElements(GameLevelInfo Info)
+    {
+        for (int i = 0; i < Info.DisorganizedSequence.Count; i++)
         {
-            int temp = LevelInfo.DisorganizedSequence[i];
-            int randomIndex = Random.Range(0, LevelInfo.DisorganizedSequence.Count - 1);
-            LevelInfo.DisorganizedSequence[i] = LevelInfo.DisorganizedSequence[randomIndex];
-            LevelInfo.DisorganizedSequence[randomIndex] = temp;
+            int temp = Info.DisorganizedSequence[i];
+            int randomIndex = Random.Range(0, Info.DisorganizedSequence.Count - 1);
+            Info.DisorganizedSequence[i] = Info.DisorganizedSequence[randomIndex];
+            Info.DisorganizedSequence[randomIndex] = temp;
         }
+        return Info;
     }
 
     public void LoadGameLevel(int LevelIndex)
@@ -215,6 +218,7 @@ public class MusicPlayerComponent : MonoBehaviour
 
     public GameLevelInfo GetGameLevelInfo()
     {
+        LevelInfo = RandomDSequenceElements(LevelInfo);
         return LevelInfo;
     }
     
@@ -240,6 +244,8 @@ public class MusicPlayerComponent : MonoBehaviour
 
             if (PlaySequence)
             {
+                PlaySequenceButton.SetGlow(true);
+                PlaySequenceButton.SetButtonColor(Color.green);
                 CurrentAudioList = new List<int>(LevelInfo.Sequence);
             }
             else
@@ -290,6 +296,8 @@ public class MusicPlayerComponent : MonoBehaviour
                 }
                 else
                 {
+                    PlaySequenceButton.SetGlow(false);
+                    PlaySequenceButton.SetButtonColor(Color.white);
                     CurrentTuneCardIndex = -1;
                     PlaySequence = true;
                     PlayAudioList = false;
