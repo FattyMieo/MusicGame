@@ -14,6 +14,15 @@ public class TuneCardScript : MusicGameButton
         base.Awake();
         BCorrect = false;
     }
+    
+    
+    /*
+        RectTransform CardRT = Card.GetComponent<RectTransform>();
+        float x = DistanceFromCenter * Mathf.Sin(Angle);
+        float y = DistanceFromCenter * Mathf.Cos(Angle);
+        CardRT.anchoredPosition = new Vector2(x, y);
+        Angle += OffsetAngle;
+     */
 
     /*public CheckCorrectness(Color RightColor,Color WrongColor)
     {
